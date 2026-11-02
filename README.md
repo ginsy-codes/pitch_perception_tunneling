@@ -114,3 +114,31 @@ Using absolute differences in plate location and release speed relative to the i
 | CH | mean Δ plate_z | whiff | 0.063 | larger vertical difference → more whiffs |
 
 The location-difference signal for sliders and sweepers is directionally consistent with the polar-path results, though weaker overall than the season-average-fastball radial integrals. The strong KC plate_x–hard-hit relationship is on a small sample and warrants caution. Full polar reconstruction of consecutive pairs remains an open extension.
+
+## Stuff+ Model
+
+A predictive model trained on 2025 path-integral features to produce a standardized score.
+
+### Training (2025)
+
+Ridge regression per pitch type on the six total-variation features (`pre_dp_r`, `pre_dp_theta`, `pre_dp_phi`, `post_dp_r`, `post_dp_theta`, `post_dp_phi`) predicting whiff rate. Stuff+ is standardized so that 100 is the mean predicted whiff rate for that pitch type, with 15 points ≈ 1 standard deviation of the predicted values.
+
+| Pitch type | n | Train r² | MAE |
+|------------|---|----------|-----|
+| SL | 726 | 0.214 | 0.081 |
+| FS | 171 | 0.222 | 0.081 |
+| KC | 76 | 0.205 | 0.092 |
+| CU | 367 | 0.164 | 0.081 |
+| FC | 407 | 0.158 | 0.066 |
+| CH | 476 | 0.121 | 0.081 |
+| ST | 416 | 0.114 | 0.086 |
+| SI | 306 | 0.036 | 0.049 |
+| FF | 178 | 0.023 | 0.075 |
+
+The model captures meaningful signal for sliders, splitters, and curves. Fastballs (FF/SI) show little within-type variation explained by path differences from their own average, as expected.
+
+### 2026 Evaluation
+
+Full evaluation on 2026 requires computing path integrals for 2026 pitches (trajectory reconstruction → polar transform → decision-point integrals vs. each pitcher's average fastball). An April 2026 sample was pulled; a proxy model using only plate-location and speed differences (not full polar path integrals) showed weak in-sample fit (r² ≈ 0.09 overall), confirming that the polar trajectory features are not reducible to simple endpoint differences.
+
+The trained 2025 model and scoring code are in `model/stuff_plus.py`. Applying it to 2026 requires running the full `polar_transformations` pipeline on 2026 data to produce the six path-integral features.
