@@ -115,13 +115,13 @@ Using absolute differences in plate location and release speed relative to the i
 
 The location-difference signal for sliders and sweepers is directionally consistent with the polar-path results, though weaker overall than the season-average-fastball radial integrals. The strong KC plate_x–hard-hit relationship is on a small sample and warrants caution. Full polar reconstruction of consecutive pairs remains an open extension.
 
-## Stuff+ Model
+## Tunnel+ Model
 
 A predictive model trained on 2025 path-integral features to produce a standardized score.
 
 ### Training (2025)
 
-Ridge regression per pitch type on the six total-variation features (`pre_dp_r`, `pre_dp_theta`, `pre_dp_phi`, `post_dp_r`, `post_dp_theta`, `post_dp_phi`) predicting whiff rate. Stuff+ is standardized so that 100 is the mean predicted whiff rate for that pitch type, with 15 points ≈ 1 standard deviation of the predicted values.
+Ridge regression per pitch type on the six total-variation features (`pre_dp_r`, `pre_dp_theta`, `pre_dp_phi`, `post_dp_r`, `post_dp_theta`, `post_dp_phi`) predicting whiff rate. Tunnel+ is standardized so that 100 is the mean predicted whiff rate for that pitch type, with 15 points ≈ 1 standard deviation of the predicted values.
 
 | Pitch type | n | Train r² | MAE |
 |------------|---|----------|-----|
@@ -141,4 +141,4 @@ The model captures meaningful signal for sliders, splitters, and curves. Fastbal
 
 Full evaluation on 2026 requires computing path integrals for 2026 pitches (trajectory reconstruction → polar transform → decision-point integrals vs. each pitcher's average fastball). An April 2026 sample was pulled; a proxy model using only plate-location and speed differences (not full polar path integrals) showed weak in-sample fit (r² ≈ 0.09 overall), confirming that the polar trajectory features are not reducible to simple endpoint differences.
 
-The trained 2025 model and scoring code are in `model/stuff_plus.py`. Applying it to 2026 requires running the full `polar_transformations` pipeline on 2026 data to produce the six path-integral features.
+The trained 2025 model and scoring code are in `model/tunnel_plus.py`. Applying it to 2026 requires running the full `polar_transformations` pipeline on 2026 data to produce the six path-integral features.

@@ -1,14 +1,14 @@
 """
-Perception Stuff+ model.
+Perception Tunnel+ model.
 
 Trains a regression on path-integral features (total variation of polar
 differences vs. the pitcher's average primary fastball) to predict whiff rate.
-Outputs a standardized Stuff+ score (100 = league average for the pitch type).
+Outputs a standardized Tunnel+ score (100 = league average for the pitch type).
 
 Train on 2025 aggregates; evaluate on 2026 once path integrals are available.
 
 Usage:
-    python model/stuff_plus.py
+    python model/tunnel_plus.py
 """
 
 import pandas as pd
@@ -21,7 +21,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 INTEGRALS_PATH = ROOT / "datamining" / "outputs" / "path_integrals_2025.csv"
 PITCHES_PATH = ROOT / "datamining" / "outputs" / "pitches_2025.csv"
-OUT_PATH = ROOT / "results" / "stuff_plus_2025.csv"
+OUT_PATH = ROOT / "results" / "tunnel_plus_2025.csv"
 
 # Map old column names to current nomenclature
 COL_MAP = {
@@ -80,7 +80,7 @@ def prepare(features: pd.DataFrame, outcomes: pd.DataFrame) -> pd.DataFrame:
 
 
 def train_and_score(df: pd.DataFrame) -> pd.DataFrame:
-    """Train a ridge model per pitch type; produce Stuff+ (100 = mean)."""
+    """Train a ridge model per pitch type; produce Tunnel+ (100 = mean)."""
     results = []
 
     for ptype, group in df.groupby("pitch_type"):
@@ -97,7 +97,7 @@ def train_and_score(df: pd.DataFrame) -> pd.DataFrame:
         model.fit(X_scaled, y)
 
         pred = model.predict(X_scaled)
-        # Stuff+: 100 = mean predicted whiff rate for this pitch type
+        # Tunnel+: 100 = mean predicted whiff rate for this pitch type
         # Higher = better (more expected whiffs from path features)
         mean_pred = pred.mean()
         std_pred = pred.std()
@@ -108,7 +108,7 @@ def train_and_score(df: pd.DataFrame) -> pd.DataFrame:
 
         out = group[["pitcher", "pitch_type", "handedness", "n_pitches", "whiff_rate"]].copy()
         out["pred_whiff"] = pred
-        out["stuff_plus"] = stuff
+        out["tunnel_plus"] = stuff
         out["train_r2"] = r2_score(y, pred)
         out["train_mae"] = mean_absolute_error(y, pred)
         results.append(out)
@@ -127,13 +127,13 @@ def main():
     print(f"Training rows: {len(df)}")
 
     scored = train_and_score(df)
-    scored = scored.sort_values("stuff_plus", ascending=False)
+    scored = scored.sort_values("tunnel_plus", ascending=False)
     scored.to_csv(OUT_PATH, index=False)
     print(f"\nWrote {OUT_PATH}")
-    print("\nTop 10 Stuff+:")
-    print(scored.head(10)[["pitcher", "pitch_type", "handedness", "whiff_rate", "pred_whiff", "stuff_plus"]].to_string(index=False))
-    print("\nBottom 5 Stuff+:")
-    print(scored.tail(5)[["pitcher", "pitch_type", "handedness", "whiff_rate", "pred_whiff", "stuff_plus"]].to_string(index=False))
+    print("\nTop 10 Tunnel+:")
+    print(scored.head(10)[["pitcher", "pitch_type", "handedness", "whiff_rate", "pred_whiff", "tunnel_plus"]].to_string(index=False))
+    print("\nBottom 5 Tunnel+:")
+    print(scored.tail(5)[["pitcher", "pitch_type", "handedness", "whiff_rate", "pred_whiff", "tunnel_plus"]].to_string(index=False))
 
 
 if __name__ == "__main__":
